@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css2?family=Khand:wght@300;400;500;600;700&family=Prosto+One&display=swap");
+
+:root {
+  --primary-font: "Cambay", sans-serif;
+  --bg-color: #060047;
+  --text-color: #2d2727;
+  --upButton-color: #539165;
+  --downButton-color: #f7c04a;
+  --lift-color: #537fe7;
+  --border-color: #000000;
+  --door-color: #19a7ce;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--primary-font);
+  background-color: #f0eeed;
+  color: var(--text-color);
+  height: 100vh;
+}
+
+header {
+  text-align: center;
+  padding: 2rem 0 2rem 0;
+}
+
+.input__section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.input__heading {
+  padding: 0 0 2rem 0;
+  text-align: center;
+}
+
+.input_labels {
+  display: inline-block;
+  width: 15em;
+}
+
+.input_from_user {
+  padding: 5px;
+  margin-bottom: 10px;
+  width: 20em;
+}
+
+.submit__btn {
+  width: 150px;
+  height: 35px;
+  margin-top: 6px;
+  border-radius: 5px;
+  border: 2px solid #000000;
+  font-size: 18px;
+  padding: 5px;
+  cursor: pointer;
+  background-color: #060047;
+  color: #ffff;
+}
+
+.output__section {
+  overflow: auto;
+}
+
+.floor {
+  height: 100px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 2vw;
+  gap: 2vw;
+  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.lift-control {
+  cursor: pointer;
+  width: 50px;
+  height: 25px;
+  text-transform: capitalize;
+  padding: 4px;
+  font-weight: bold;
+}
+
+.lift {
+  height: 91px;
+  width: 90px;
+  background-color: #bce8c4;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  margin-right: 20px;
+  border: 1px solid #000000;
+}
+
+.lift-control .up {
+  background-color: #bce8c4;
+}
+.lift-control .down {
+  background-color: #bce8c4;
+}
+
+.door {
+  background-color: #19a7ce;
+  height: 100%;
+  width: 50%;
+  transition: all 2.5s;
+}
+
+.left-door {
+  border-right: 1px solid #f0eeed;
+}
+
+.right-door {
+  border-left: 1px solid #f0eeed;
+}
+
+.left-move {
+  transform: translateX(-100%);
+}
+
+.right-move {
+  transform: translateX(100%);
+}

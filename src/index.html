@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lift Simulator</title>
+    <link rel="stylesheet" href="./css/main.css" />
+  </head>
+  <body>
+    <header>
+      <h1 class="welcome__message">welcome to Lift simulator</h1>
+    </header>
+    <main>
+      <section class="input__section">
+        <div class="input__inner__box">
+          <h2 class="input__heading">Enter Input to start</h2>
+          <form id="user_input">
+            <div class="input__fields">
+              <div>
+                <label for="floorInput" class="input_labels"
+                  >Enter The Number Of Floors</label
+                >
+                <input
+                  type="number"
+                  id="floorInput"
+                  class="floor__input input_from_user"
+                  name="floorInput"
+                  placeholder="Enter The Number Of Floors"
+                />
+              </div>
+              <div>
+                <label for="liftInput" class="input_labels"
+                  >Enter The Number Of Lifts</label
+                >
+                <input
+                  type="number"
+                  id="liftInput"
+                  class="lift__input input_from_user"
+                  name="liftInput"
+                  placeholder="Enter The Number Of Lifts"
+                />
+              </div>
+              <button type="submit" class="submit__btn">Submit</button>
+            </div>
+          </form>
+        </div>
+      </section>
+      <section class="output__section"></section>
+    </main>
+    <script src="./js/main.js"></script>
+  </body>
+</html>
