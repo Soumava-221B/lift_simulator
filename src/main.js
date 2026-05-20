@@ -163,7 +163,7 @@ function liftMovement(floorId, liftId) {
   const floorNumber = parseInt(arr[arr.length - 1]);
   const previousFloor = liftMaping.get(liftId);
   const diff = Math.abs(previousFloor - floorNumber);
-  const transitionDuration = diff * 2;
+  const transitionDuration = diff * 0.25;
   lift.style.transform = `translateY(-${floorNumber * 100}px)`;
   lift.style.transition = `all ${transitionDuration}s`;
 
