@@ -3,13 +3,13 @@ const liftInput = document.querySelector(".lift__input");
 const submitBtn = document.querySelector(".submit__btn");
 const outputSection = document.querySelector(".output__section");
 
-const floorMaping = new Map();
+const floorCalls = new Map();
 const liftMaping = new Map();
 const checkAvailability = new Map();
 
 let floorCount = null,
   liftCount = null;
-let leftLiftcalls = [];
+let pendingCalls = [];
 
 submitBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -54,7 +54,7 @@ function handleFloor(totalFloors) {
   topFloor
     .querySelector(".down")
     .addEventListener("click", (e) => handleLiftCall(e));
-  floorMaping.set(`floor-${totalFloors}`, null);
+  floorCalls.set(`floor-${totalFloors}`, { down: null });
   outputSection.appendChild(topFloor);
 
   for (let i = totalFloors - 1; i > 0; i--) {
@@ -75,7 +75,7 @@ function handleFloor(totalFloors) {
     middleFloors
       .querySelector(".down")
       .addEventListener("click", (e) => handleLiftCall(e));
-    floorMaping.set(`floor-${i}`, null);
+    floorCalls.set(`floor-${i}`, { up: null, down: null });
     outputSection.appendChild(middleFloors);
   }
   const groundFloor = document.createElement("section");
@@ -91,7 +91,7 @@ function handleFloor(totalFloors) {
   groundFloor
     .querySelector(".up")
     .addEventListener("click", (e) => handleLiftCall(e));
-  floorMaping.set(`floor-${0}`, null);
+  floorCalls.set(`floor-${0}`, { up: null });
   outputSection.appendChild(groundFloor);
 
   outputSection.style.visibility = "visible";
@@ -119,48 +119,88 @@ function handleLiftCall(event) {
   const floorElement = event.target.closest(".floor");
   if (!floorElement) return;
   const floorId = floorElement.id;
+  const direction = event.target.classList.contains("up") ? "up" : "down";
+  dispatchLift(floorId, direction);
+}
 
-  if (floorMaping.get(floorId) != null) {
-    const mappedliftId = floorMaping.get(floorId);
-    if (checkAvailability.get(mappedliftId)) {
-      checkAvailability.set(mappedliftId, false);
-      doorOpenClose(floorId, mappedliftId);
+function setButtonDisabled(floorId, direction, disabled) {
+  const floorEl = document.getElementById(floorId);
+  if (!floorEl) return;
+  const btn = floorEl.querySelector(`.lift-control.${direction}`);
+  if (btn) btn.disabled = disabled;
+}
+
+function dispatchLift(floorId, direction) {
+  const callState = floorCalls.get(floorId);
+  const floorNum = parseInt(floorId.split("-")[1], 10);
+  const isTerminal = floorNum === 0 || floorNum === floorCount;
+
+  if (isTerminal) {
+    const assignedLift = Object.values(callState).find((id) => id !== null);
+    if (assignedLift) {
+      setButtonDisabled(floorId, direction, true);
+      if (checkAvailability.get(assignedLift)) {
+        checkAvailability.set(assignedLift, false);
+        doorOpenClose(floorId, assignedLift, direction);
+      }
+      return;
     }
-    return;
+  } else {
+    if (callState[direction] !== null) {
+      const assignedLift = callState[direction];
+      setButtonDisabled(floorId, direction, true);
+      if (checkAvailability.get(assignedLift)) {
+        checkAvailability.set(assignedLift, false);
+        doorOpenClose(floorId, assignedLift, direction);
+      }
+      return;
+    }
   }
+
+  const liftId = findNearestAvailableLift(floorId);
+  if (liftId) {
+    assignAndMove(floorId, liftId, direction);
+  } else {
+    pendingCalls.push({ floorId, direction });
+  }
+}
+
+function findNearestAvailableLift(targetFloorId) {
+  const arr = targetFloorId.split("-");
+  const targetFloor = parseInt(arr[arr.length - 1], 10);
+  let nearestLiftId = null;
+  let minDistance = Infinity;
 
   for (let i = 1; i <= liftCount; i++) {
     const liftId = `lift-${i}`;
     if (checkAvailability.get(liftId)) {
-      liftMovement(floorId, liftId);
-      return;
+      const liftFloor = liftMaping.get(liftId);
+      const distance = Math.abs(liftFloor - targetFloor);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestLiftId = liftId;
+      }
     }
   }
-  leftLiftcalls.push(floorId);
+  return nearestLiftId;
 }
 
-function liftMovement(floorId, liftId) {
-  if (floorMaping.get(floorId) !== null) {
-    const mappedLiftId = floorMaping.get(floorId);
-    if (checkAvailability.get(mappedLiftId)) {
-      checkAvailability.set(mappedLiftId, false);
-      doorOpenClose(floorId, mappedLiftId);
-    }
-    return;
-  }
+function assignAndMove(floorId, liftId, direction) {
   checkAvailability.set(liftId, false);
-  floorMaping.set(floorId, liftId);
+  setButtonDisabled(floorId, direction, true);
+  const callState = floorCalls.get(floorId);
+  callState[direction] = liftId;
 
-  floorMaping.forEach((value, key) => {
-    if (key !== floorId && value === liftId) {
-      floorMaping.set(key, null);
+  floorCalls.forEach((state, key) => {
+    if (key !== floorId) {
+      if (state.up === liftId) state.up = null;
+      if (state.down === liftId) state.down = null;
     }
   });
 
-  // const floor = document.querySelector(`#${floorId}`);
   const lift = document.getElementById(`${liftId}`);
   const arr = floorId.split("-");
-  const floorNumber = parseInt(arr[arr.length - 1]);
+  const floorNumber = parseInt(arr[arr.length - 1], 10);
   const previousFloor = liftMaping.get(liftId);
   const diff = Math.abs(previousFloor - floorNumber);
   const transitionDuration = diff * 0.25;
@@ -168,13 +208,13 @@ function liftMovement(floorId, liftId) {
   lift.style.transition = `all ${transitionDuration}s`;
 
   setTimeout(() => {
-    doorOpenClose(floorId, liftId);
+    doorOpenClose(floorId, liftId, direction);
   }, transitionDuration * 1000);
 
   liftMaping.set(liftId, floorNumber);
 }
 
-function doorOpenClose(floorId, liftId) {
+function doorOpenClose(floorId, liftId, direction) {
   const lift = document.querySelector(`#${liftId}`);
   const leftDoor = lift.querySelector(".left-door");
   const rightDoor = lift.querySelector(".right-door");
@@ -183,13 +223,19 @@ function doorOpenClose(floorId, liftId) {
   setTimeout(() => {
     leftDoor.classList.remove("left-move");
     rightDoor.classList.remove("right-move");
-    //this lift will be free after 2500ms
+
+    const callState = floorCalls.get(floorId);
+    if (callState && callState[direction] === liftId) {
+      callState[direction] = null;
+    }
+
     setTimeout(() => {
       checkAvailability.set(liftId, true);
-      if (leftLiftcalls.length > 0) {
-        const floorIdFromRemainingCalls = leftLiftcalls[0];
-        leftLiftcalls.shift();
-        liftMovement(floorIdFromRemainingCalls, liftId);
+      setButtonDisabled(floorId, direction, false);
+      if (pendingCalls.length > 0) {
+        const nextCall = pendingCalls[0];
+        pendingCalls.shift();
+        dispatchLift(nextCall.floorId, nextCall.direction);
       }
     }, 2500);
   }, 2500);

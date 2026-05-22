@@ -107,6 +107,11 @@ header {
   background-color: #bce8c4;
 }
 
+.lift-control:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .door {
   background-color: #19a7ce;
   height: 100%;
