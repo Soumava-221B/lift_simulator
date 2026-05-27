@@ -20,9 +20,11 @@ submitBtn.addEventListener("click", (e) => {
     isNaN(floorCount) ||
     isNaN(liftCount) ||
     floorCount <= 0 ||
-    liftCount <= 0
+    liftCount <= 0 ||
+    !Number.isInteger(Number(floorInput.value)) ||
+    !Number.isInteger(Number(liftInput.value))
   ) {
-    return alert("Invalid Input, Please Try Again!!");
+    return alert("Oops! Please enter a whole number greater than 0 for both floor and lift 😊");
   }
 
   const inputSection = document.querySelector(".input__section");
@@ -84,7 +86,7 @@ function handleFloor(totalFloors) {
   groundFloor.innerHTML = `
     <section class="floor-details">
         <button type="" class="lift-control up">↑</button>
-        <p class="floor-number">Floor-${0}</p>
+        <p class="floor-number">Ground Floor</p>
     </section>
     `;
 
@@ -205,7 +207,7 @@ function assignAndMove(floorId, liftId, direction) {
   const diff = Math.abs(previousFloor - floorNumber);
   const transitionDuration = diff * 0.25;
   lift.style.transform = `translateY(-${floorNumber * 100}px)`;
-  lift.style.transition = `all ${transitionDuration}s`;
+  lift.style.transition = `transform ${transitionDuration}s`;
 
   setTimeout(() => {
     doorOpenClose(floorId, liftId, direction);
