@@ -101,13 +101,14 @@
     gameState.timeLeft = 120;
 
     Lift.reset();
+    NPC.reset();
+    NPC.startSpawning();
     setControlsEnabled(true);
 
     hideStartOverlay();
     showGameArea();
     updateHUD();
 
-    // Phase 3+ will wire NPCs and timers here
     console.log("Game started:", name);
   }
 
@@ -115,6 +116,7 @@
     gameState.status = "ended";
     clearInterval(gameState.spawnTimer);
     clearInterval(gameState.gameTimer);
+    NPC.stopSpawning();
     setControlsEnabled(false);
 
     saveScore(gameState.playerName, gameState.score);
@@ -129,6 +131,7 @@
     gameState.score = 0;
     gameState.timeLeft = 120;
     playerNameInput.value = "";
+    NPC.reset();
     updateHUD();
   }
 
