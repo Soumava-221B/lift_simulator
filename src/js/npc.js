@@ -40,11 +40,7 @@
   function spawnBatch() {
     for (let i = 0; i < BATCH_SIZE; i++) {
       const spawnFloor = randomFloor();
-      let targetFloor = randomFloor();
-      // Ensure target is different from spawn for gameplay
-      while (targetFloor === spawnFloor) {
-        targetFloor = randomFloor();
-      }
+      const targetFloor = randomFloor();
       const npc = createNPC(spawnFloor, targetFloor);
       floors[spawnFloor].waiting.push(npc);
       renderNPC(npc, spawnFloor);
@@ -162,7 +158,7 @@
     all.forEach((npc) => {
       console.assert(npc.targetFloor >= 1 && npc.targetFloor <= 4, "targetFloor out of range");
       console.assert(npc.spawnFloor >= 1 && npc.spawnFloor <= 4, "spawnFloor out of range");
-      console.assert(npc.spawnFloor !== npc.targetFloor, "spawnFloor should != targetFloor");
+      // Same-floor targeting is now allowed per new rule
     });
     console.log("NPC spawn tests passed");
   }
