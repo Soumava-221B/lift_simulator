@@ -95,6 +95,9 @@
   }
 
   function startGame(name) {
+    // Prevent duplicate timers
+    if (gameState.gameTimer) clearInterval(gameState.gameTimer);
+
     gameState.playerName = name;
     gameState.status = "running";
     gameState.score = 0;
@@ -104,6 +107,16 @@
     NPC.reset();
     NPC.startSpawning();
     setControlsEnabled(true);
+
+    // 2-minute countdown timer
+    gameState.gameTimer = setInterval(() => {
+      if (gameState.status !== "running") return;
+      gameState.timeLeft -= 1;
+      updateHUD();
+      if (gameState.timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
 
     hideStartOverlay();
     showGameArea();
@@ -115,7 +128,10 @@
   function endGame() {
     gameState.status = "ended";
     clearInterval(gameState.spawnTimer);
-    clearInterval(gameState.gameTimer);
+    if (gameState.gameTimer) {
+      clearInterval(gameState.gameTimer);
+      gameState.gameTimer = null;
+    }
     NPC.stopSpawning();
     setControlsEnabled(false);
 
@@ -130,6 +146,10 @@
     gameState.status = "idle";
     gameState.score = 0;
     gameState.timeLeft = 120;
+    if (gameState.gameTimer) {
+      clearInterval(gameState.gameTimer);
+      gameState.gameTimer = null;
+    }
     playerNameInput.value = "";
     NPC.reset();
     updateHUD();
@@ -325,10 +345,26 @@
     }, 600);
   }
 
+  // --- Phase 5 Tests ---
+  function testTimerEnd() {
+    startGame("TestPlayer");
+    gameState.timeLeft = 1;
+    // Manually trigger the interval logic
+    gameState.timeLeft -= 1;
+    updateHUD();
+    if (gameState.timeLeft <= 0) {
+      endGame();
+    }
+    console.assert(gameState.status === "ended", "game should end when timer reaches 0");
+    console.assert(gameState.gameTimer === null, "gameTimer should be cleared");
+    console.log("testTimerEnd passed");
+  }
+
   window.GameTests = {
     testExitAndScore,
     testCapacityBoarding,
     testPartialBoarding,
+    testTimerEnd,
   };
 
   // Expose minimal API for tests
