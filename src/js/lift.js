@@ -6,14 +6,14 @@
 (function () {
   "use strict";
 
-  const FLOOR_COUNT = 4;
-  const FLOOR_HEIGHT_PCT = 100 / FLOOR_COUNT; // 25%
+  const FLOOR_COUNT = 5;
+  const FLOOR_HEIGHT_PCT = 100 / FLOOR_COUNT; // 20%
   const SEC_PER_FLOOR = 0.5;
 
   const liftCar = document.getElementById("lift-car");
 
   const liftState = {
-    currentFloor: 1,
+    currentFloor: 0,
     targetFloor: null,
     moving: false,
     occupants: [],
@@ -21,12 +21,12 @@
   };
 
   /**
-   * Move the lift to a target floor (1–4).
+   * Move the lift to a target floor (0–4).
    * Ignored if out of bounds, already there, or currently moving.
    */
   function moveTo(targetFloor) {
     if (liftState.moving) return false;
-    if (targetFloor < 1 || targetFloor > FLOOR_COUNT) return false;
+    if (targetFloor < 0 || targetFloor > FLOOR_COUNT - 1) return false;
     if (targetFloor === liftState.currentFloor) {
       handleArrival();
       return true;
@@ -38,7 +38,7 @@
     liftState.targetFloor = targetFloor;
     liftState.moving = true;
 
-    const bottomPct = (targetFloor - 1) * FLOOR_HEIGHT_PCT;
+    const bottomPct = targetFloor * FLOOR_HEIGHT_PCT;
     liftCar.style.transition = `bottom ${duration}s linear`;
     liftCar.style.bottom = `${bottomPct}%`;
 
@@ -66,14 +66,14 @@
   }
 
   /**
-   * Reset lift to floor 1. Used when restarting a game.
+   * Reset lift to ground floor (0). Used when restarting a game.
    */
   function reset() {
     liftCar.style.transition = "none";
     liftCar.style.bottom = "0%";
     // Force reflow so the next transition works
     void liftCar.offsetHeight;
-    liftState.currentFloor = 1;
+    liftState.currentFloor = 0;
     liftState.targetFloor = null;
     liftState.moving = false;
     liftState.occupants = [];
@@ -99,12 +99,12 @@
     liftState.moving = false;
     liftState.currentFloor = 1;
 
-    console.assert(moveTo(0) === false, "moveTo(0) should be rejected");
+    console.assert(moveTo(-1) === false, "moveTo(-1) should be rejected");
     console.assert(moveTo(5) === false, "moveTo(5) should be rejected");
-    console.assert(moveTo(1) === true, "moveTo(1) same floor should succeed");
+    console.assert(moveTo(0) === true, "moveTo(0) same floor should succeed");
 
     liftState.moving = true;
-    console.assert(moveTo(2) === false, "moveTo while moving should be rejected");
+    console.assert(moveTo(1) === false, "moveTo while moving should be rejected");
 
     // Restore
     Object.assign(liftState, original);

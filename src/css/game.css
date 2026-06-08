@@ -246,7 +246,7 @@ html, body {
   left: 160px;
   bottom: 0;
   width: 100px;
-  height: calc(100% / 4 - 4px);
+  height: calc(100% / 5 - 4px);
   background: var(--lift-bg);
   border: 2px solid var(--primary);
   border-radius: 4px;

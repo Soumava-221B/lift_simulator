@@ -6,11 +6,12 @@
 (function () {
   "use strict";
 
-  const FLOOR_COUNT = 4;
+  const FLOOR_COUNT = 5;
   const SPAWN_INTERVAL = 3000; // ms
   const BATCH_SIZE = 3;
 
   const floors = {
+    0: { waiting: [] },
     1: { waiting: [] },
     2: { waiting: [] },
     3: { waiting: [] },
@@ -21,7 +22,7 @@
   let spawnTimerId = null;
 
   function randomFloor() {
-    return Math.floor(Math.random() * FLOOR_COUNT) + 1;
+    return Math.floor(Math.random() * FLOOR_COUNT);
   }
 
   function createNPC(spawnFloor, targetFloor) {
@@ -124,7 +125,7 @@
   function reset() {
     stopSpawning();
     npcIdCounter = 0;
-    for (let f = 1; f <= FLOOR_COUNT; f++) {
+    for (let f = 0; f < FLOOR_COUNT; f++) {
       floors[f].waiting.length = 0;
     }
     document.querySelectorAll(".npc").forEach((el) => el.remove());
@@ -152,12 +153,12 @@
     console.assert(after === before + 3, `Expected 3 new NPCs, got ${after - before}`);
 
     const all = [];
-    for (let f = 1; f <= FLOOR_COUNT; f++) {
+    for (let f = 0; f < FLOOR_COUNT; f++) {
       all.push(...floors[f].waiting);
     }
     all.forEach((npc) => {
-      console.assert(npc.targetFloor >= 1 && npc.targetFloor <= 4, "targetFloor out of range");
-      console.assert(npc.spawnFloor >= 1 && npc.spawnFloor <= 4, "spawnFloor out of range");
+      console.assert(npc.targetFloor >= 0 && npc.targetFloor <= 4, "targetFloor out of range");
+      console.assert(npc.spawnFloor >= 0 && npc.spawnFloor <= 4, "spawnFloor out of range");
       // Same-floor targeting is now allowed per new rule
     });
     console.log("NPC spawn tests passed");
@@ -165,7 +166,7 @@
 
   function totalWaiting() {
     let sum = 0;
-    for (let f = 1; f <= FLOOR_COUNT; f++) sum += floors[f].waiting.length;
+    for (let f = 0; f < FLOOR_COUNT; f++) sum += floors[f].waiting.length;
     return sum;
   }
 
