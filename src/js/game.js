@@ -84,9 +84,9 @@
       }
     });
 
-    // Update HUD whenever lift arrives at a floor
+    // Phase 4: handle boarding, exiting, scoring on floor arrival
     document.addEventListener("floorArrived", () => {
-      updateHUD();
+      handleFloorArrival();
     });
   }
 
@@ -133,6 +133,62 @@
     playerNameInput.value = "";
     NPC.reset();
     updateHUD();
+  }
+
+  /**
+   * Phase 4 core: on floor arrival, open doors, let NPCs exit and board,
+   * then close doors.  Awards 5 points per correct exit.
+   */
+  function handleFloorArrival() {
+    if (gameState.status !== "running") return;
+
+    const currentFloor = Lift.state.currentFloor;
+    openDoors();
+
+    // Wait for doors to visually open before processing
+    setTimeout(() => {
+      // --- EXIT PHASE ---
+      let exitedCount = 0;
+      const remaining = [];
+      Lift.state.occupants.forEach((npc) => {
+        if (npc.targetFloor === currentFloor) {
+          NPC.removeNPC(npc);
+          exitedCount += 1;
+          gameState.score += 5;
+        } else {
+          remaining.push(npc);
+        }
+      });
+      Lift.state.occupants = remaining;
+
+      // --- BOARD PHASE ---
+      const queue = NPC.floors[currentFloor].waiting;
+      while (
+        Lift.state.occupants.length < Lift.state.capacity &&
+        queue.length > 0
+      ) {
+        const npc = queue.shift();
+        NPC.boardNPC(npc);
+        Lift.state.occupants.push(npc);
+      }
+
+      updateHUD();
+
+      // Close doors after a brief pause so the player can see what happened
+      setTimeout(() => {
+        closeDoors();
+      }, 500);
+    }, 400);
+  }
+
+  function openDoors() {
+    document.querySelector(".lift-door.left-door")?.classList.add("open");
+    document.querySelector(".lift-door.right-door")?.classList.add("open");
+  }
+
+  function closeDoors() {
+    document.querySelector(".lift-door.left-door")?.classList.remove("open");
+    document.querySelector(".lift-door.right-door")?.classList.remove("open");
   }
 
   function updateHUD() {
@@ -201,6 +257,80 @@
     return div.innerHTML;
   }
 
+  // --- Phase 4 Tests ---
+  function testExitAndScore() {
+    // Requires DOM present (run inside game.html)
+    NPC.reset();
+    Lift.reset();
+    gameState.score = 0;
+    Lift.state.occupants = [
+      NPC.createNPC(1, 2),
+      NPC.createNPC(1, 3),
+    ];
+    Lift.state.currentFloor = 2;
+
+    const scoreBefore = gameState.score;
+    handleFloorArrival();
+
+    // Because handleFloorArrival is async (setTimeout), we can't assert synchronously.
+    // Instead, inspect state after a short delay in the console.
+    setTimeout(() => {
+      console.assert(Lift.state.occupants.length === 1, "one NPC should remain");
+      console.assert(Lift.state.occupants[0].targetFloor === 3, "remaining NPC targets floor 3");
+      console.assert(gameState.score === scoreBefore + 5, "5 points awarded");
+      console.log("testExitAndScore passed");
+    }, 600);
+  }
+
+  function testCapacityBoarding() {
+    NPC.reset();
+    Lift.reset();
+    gameState.score = 0;
+    // Fill lift to capacity with NPCs going to floor 4
+    for (let i = 0; i < 5; i++) {
+      Lift.state.occupants.push(NPC.createNPC(1, 4));
+    }
+    // Add 2 waiting NPCs on floor 1
+    NPC.floors[1].waiting.push(NPC.createNPC(1, 2));
+    NPC.floors[1].waiting.push(NPC.createNPC(1, 3));
+    Lift.state.currentFloor = 1;
+
+    handleFloorArrival();
+    setTimeout(() => {
+      console.assert(Lift.state.occupants.length === 5, "capacity should stay at 5");
+      console.assert(NPC.floors[1].waiting.length === 2, "waiting queue unchanged");
+      console.log("testCapacityBoarding passed");
+    }, 600);
+  }
+
+  function testPartialBoarding() {
+    NPC.reset();
+    Lift.reset();
+    gameState.score = 0;
+    // 3 in lift, 2 free slots
+    for (let i = 0; i < 3; i++) {
+      Lift.state.occupants.push(NPC.createNPC(1, 4));
+    }
+    // 3 waiting on floor 2
+    NPC.floors[2].waiting.push(NPC.createNPC(2, 1));
+    NPC.floors[2].waiting.push(NPC.createNPC(2, 3));
+    NPC.floors[2].waiting.push(NPC.createNPC(2, 4));
+    Lift.state.currentFloor = 2;
+
+    handleFloorArrival();
+    setTimeout(() => {
+      console.assert(Lift.state.occupants.length === 5, "lift filled to capacity");
+      console.assert(NPC.floors[2].waiting.length === 1, "one NPC left waiting");
+      console.log("testPartialBoarding passed");
+    }, 600);
+  }
+
+  window.GameTests = {
+    testExitAndScore,
+    testCapacityBoarding,
+    testPartialBoarding,
+  };
+
   // Expose minimal API for tests
   window.ElevatorRush = {
     gameState,
@@ -208,6 +338,7 @@
     startGame,
     endGame,
     formatTime,
+    handleFloorArrival,
   };
 
   init();
