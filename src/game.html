@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elevator Rush</title>
+    <link rel="stylesheet" href="./css/game.css" />
+  </head>
+  <body>
+    <!-- Start Overlay -->
+    <div id="start-overlay" class="overlay">
+      <div class="overlay__panel">
+        <h1 class="game-title">Elevator Rush</h1>
+        <p class="game-subtitle">2 Minutes. 1 Lift. Maximum Score.</p>
+        <form id="start-form" class="start-form">
+          <label for="player-name">Enter Your Name</label>
+          <input
+            type="text"
+            id="player-name"
+            name="playerName"
+            placeholder="Min 2 characters"
+            minlength="2"
+            required
+          />
+          <button type="submit" class="start-btn">Start Game</button>
+          <p id="name-error" class="error-msg" hidden>Name must be at least 2 characters.</p>
+        </form>
+        <section class="leaderboard-preview">
+          <h2>Leaderboard</h2>
+          <ol id="leaderboard-list"></ol>
+        </section>
+        <a href="./index.html" class="back-link">Back to Lift Simulator</a>
+      </div>
+    </div>
+
+    <!-- Game Area -->
+    <div id="game-area" class="game-area" hidden>
+      <header class="game-hud">
+        <div class="hud-group">
+          <span class="hud-label">Player</span>
+          <span id="hud-player" class="hud-value">—</span>
+        </div>
+        <div class="hud-group">
+          <span class="hud-label">Score</span>
+          <span id="hud-score" class="hud-value">0</span>
+        </div>
+        <div class="hud-group">
+          <span class="hud-label">Time</span>
+          <span id="hud-time" class="hud-value">02:00</span>
+        </div>
+        <div class="hud-group">
+          <span class="hud-label">Lift</span>
+          <span id="hud-capacity" class="hud-value">0 / 5</span>
+        </div>
+      </header>
+
+      <main class="game-main">
+        <section class="shaft">
+          <div class="floor" data-floor="4">
+            <div class="floor-info">
+              <span class="floor-label">Floor 4</span>
+              <div class="floor-queue" data-floor="4"></div>
+            </div>
+            <div class="floor-zone"></div>
+          </div>
+          <div class="floor" data-floor="3">
+            <div class="floor-info">
+              <span class="floor-label">Floor 3</span>
+              <div class="floor-queue" data-floor="3"></div>
+            </div>
+            <div class="floor-zone"></div>
+          </div>
+          <div class="floor" data-floor="2">
+            <div class="floor-info">
+              <span class="floor-label">Floor 2</span>
+              <div class="floor-queue" data-floor="2"></div>
+            </div>
+            <div class="floor-zone"></div>
+          </div>
+          <div class="floor" data-floor="1">
+            <div class="floor-info">
+              <span class="floor-label">Floor 1</span>
+              <div class="floor-queue" data-floor="1"></div>
+            </div>
+            <div class="floor-zone"></div>
+          </div>
+
+          <div id="lift-car" class="lift-car">
+            <div class="lift-door left-door"></div>
+            <div class="lift-door right-door"></div>
+            <div class="lift-interior">
+              <div class="lift-occupants"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls">
+          <button id="btn-up" class="ctrl-btn" aria-label="Move lift up">Up</button>
+          <button id="btn-down" class="ctrl-btn" aria-label="Move lift down">Down</button>
+        </section>
+      </main>
+    </div>
+
+    <!-- End Overlay -->
+    <div id="end-overlay" class="overlay" hidden>
+      <div class="overlay__panel">
+        <h1 class="game-title">Time's Up!</h1>
+        <p class="final-score">Your Score: <span id="final-score">0</span></p>
+        <section class="leaderboard-full">
+          <h2>Leaderboard</h2>
+          <ol id="end-leaderboard-list"></ol>
+        </section>
+        <button id="play-again-btn" class="start-btn">Play Again</button>
+        <a href="./index.html" class="back-link">Back to Lift Simulator</a>
+      </div>
+    </div>
+
+    <script src="./js/leaderboard.js"></script>
+    <script src="./js/npc.js"></script>
+    <script src="./js/lift.js"></script>
+    <script src="./js/game.js"></script>
+  </body>
+</html>

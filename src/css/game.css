@@ -1,0 +1,396 @@
+@import url("https://fonts.googleapis.com/css2?family=Khand:wght@300;400;500;600;700&family=Prosto+One&display=swap");
+
+:root {
+  --bg: #f0eeed;
+  --panel-bg: #ffffff;
+  --primary: #060047;
+  --accent: #537fe7;
+  --success: #539165;
+  --danger: #c0392b;
+  --text: #2d2727;
+  --muted: #6b6b6b;
+  --border: #d1d1d1;
+  --floor-bg: #e8e8e8;
+  --shaft-bg: #cfcfcf;
+  --lift-bg: #bce8c4;
+  --door: #19a7ce;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: "Khand", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Overlays */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 0, 71, 0.85);
+  z-index: 100;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.overlay__panel {
+  background: var(--panel-bg);
+  border-radius: 12px;
+  padding: 2rem;
+  width: min(90vw, 420px);
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.game-title {
+  font-family: "Prosto One", sans-serif;
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+  color: var(--primary);
+}
+
+.game-subtitle {
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+.start-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.start-form label {
+  text-align: left;
+  font-weight: 600;
+}
+
+.start-form input {
+  padding: 0.6rem;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.start-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.start-btn {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.start-btn:hover {
+  background: #0a005f;
+}
+
+.error-msg {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Leaderboard */
+.leaderboard-preview,
+.leaderboard-full {
+  margin: 1rem 0;
+}
+
+.leaderboard-preview h2,
+.leaderboard-full h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.leaderboard-preview ol,
+.leaderboard-full ol {
+  list-style: none;
+  padding: 0;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.leaderboard-preview li,
+.leaderboard-full li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+/* Game Area */
+.game-area {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.game-hud {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--primary);
+  color: #fff;
+}
+
+.hud-group {
+  text-align: center;
+}
+
+.hud-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.hud-value {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.game-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Shaft */
+.shaft {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  background: var(--shaft-bg);
+  border-left: 4px solid var(--primary);
+  border-right: 4px solid var(--primary);
+  margin: 1rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.floor {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border-top: 2px solid var(--border);
+  position: relative;
+}
+
+.floor:first-child {
+  border-top: none;
+}
+
+.floor-info {
+  width: 140px;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.floor-label {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.floor-queue {
+  display: flex;
+  gap: 0.35rem;
+  min-height: 40px;
+}
+
+.floor-zone {
+  flex: 1;
+  position: relative;
+}
+
+/* Lift Car */
+.lift-car {
+  position: absolute;
+  left: 160px;
+  bottom: 0;
+  width: 100px;
+  height: calc(100% / 4 - 4px);
+  background: var(--lift-bg);
+  border: 2px solid var(--primary);
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+  transition: bottom 0.5s linear;
+  z-index: 10;
+}
+
+.lift-door {
+  width: 50%;
+  height: 100%;
+  background: var(--door);
+  transition: transform 0.4s ease;
+  z-index: 2;
+}
+
+.lift-door.left-door {
+  border-right: 1px solid var(--bg);
+}
+
+.lift-door.right-door {
+  border-left: 1px solid var(--bg);
+}
+
+.lift-door.open.left-door {
+  transform: translateX(-100%);
+}
+
+.lift-door.open.right-door {
+  transform: translateX(100%);
+}
+
+.lift-interior {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  gap: 2px;
+  z-index: 1;
+}
+
+.lift-occupants {
+  display: flex;
+  gap: 2px;
+}
+
+/* Controls */
+.controls {
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--panel-bg);
+  border-left: 2px solid var(--border);
+}
+
+.ctrl-btn {
+  width: 80px;
+  height: 60px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ctrl-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ctrl-btn:active {
+  transform: scale(0.96);
+}
+
+.ctrl-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* NPC Stick Figure */
+.npc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+}
+
+.npc-head {
+  width: 10px;
+  height: 10px;
+  background: var(--text);
+  border-radius: 50%;
+}
+
+.npc-body {
+  width: 4px;
+  height: 14px;
+  background: var(--text);
+  border-radius: 2px;
+}
+
+.npc-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  padding: 2px 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-bottom: 4px;
+  color: var(--primary);
+}
+
+.npc-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: var(--primary) transparent transparent transparent;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.npc.spawn {
+  animation: fadeIn 0.3s ease;
+}
