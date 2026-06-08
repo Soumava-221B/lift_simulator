@@ -202,11 +202,13 @@
   }
 
   function openDoors() {
+    Lift.state.doorsOpen = true;
     document.querySelector(".lift-door.left-door")?.classList.add("open");
     document.querySelector(".lift-door.right-door")?.classList.add("open");
   }
 
   function closeDoors() {
+    Lift.state.doorsOpen = false;
     document.querySelector(".lift-door.left-door")?.classList.remove("open");
     document.querySelector(".lift-door.right-door")?.classList.remove("open");
   }
@@ -280,6 +282,7 @@
   // --- Phase 4 Tests ---
   function testExitAndScore() {
     // Requires DOM present (run inside game.html)
+    gameState.status = "running";
     NPC.reset();
     Lift.reset();
     gameState.score = 0;
@@ -303,6 +306,7 @@
   }
 
   function testCapacityBoarding() {
+    gameState.status = "running";
     NPC.reset();
     Lift.reset();
     gameState.score = 0;
@@ -324,6 +328,7 @@
   }
 
   function testPartialBoarding() {
+    gameState.status = "running";
     NPC.reset();
     Lift.reset();
     gameState.score = 0;
@@ -360,11 +365,68 @@
     console.log("testTimerEnd passed");
   }
 
+  // --- Phase 6 Tests ---
+  function testSameFloorTarget() {
+    gameState.status = "running";
+    NPC.reset();
+    Lift.reset();
+    gameState.score = 0;
+    Lift.state.currentFloor = 2;
+    // NPC spawns on floor 2 wanting to go to floor 2
+    NPC.floors[2].waiting.push(NPC.createNPC(2, 2));
+
+    handleFloorArrival();
+    setTimeout(() => {
+      console.assert(Lift.state.occupants.length === 1, "same-floor NPC should board");
+      console.assert(Lift.state.occupants[0].targetFloor === 2, "target stays floor 2");
+      console.log("testSameFloorTarget passed");
+    }, 600);
+  }
+
+  function testSameFloorTargetExit() {
+    gameState.status = "running";
+    NPC.reset();
+    Lift.reset();
+    gameState.score = 0;
+    // NPC already in lift, wants same floor
+    Lift.state.occupants.push(NPC.createNPC(2, 2));
+    Lift.state.currentFloor = 2;
+
+    handleFloorArrival();
+    setTimeout(() => {
+      console.assert(Lift.state.occupants.length === 0, "same-floor NPC should exit immediately");
+      console.assert(gameState.score === 5, "5 points awarded for same-floor exit");
+      console.log("testSameFloorTargetExit passed");
+    }, 600);
+  }
+
+  function runAllTests() {
+    console.log("=== Elevator Rush — Running All Tests ===");
+
+    // Synchronous tests
+    LiftTests.testLiftMovement();
+    NPCTests.testSpawnNPCs();
+
+    // Asynchronous tests — staggered to avoid state collisions
+    const delay = 800;
+    let d = delay;
+    setTimeout(() => testExitAndScore(), d);        d += delay;
+    setTimeout(() => testCapacityBoarding(), d);    d += delay;
+    setTimeout(() => testPartialBoarding(), d);      d += delay;
+    setTimeout(() => testSameFloorTarget(), d);     d += delay;
+    setTimeout(() => testSameFloorTargetExit(), d);  d += delay;
+    setTimeout(() => testTimerEnd(), d);             d += delay;
+    setTimeout(() => console.log("=== All tests completed ==="), d);
+  }
+
   window.GameTests = {
     testExitAndScore,
     testCapacityBoarding,
     testPartialBoarding,
     testTimerEnd,
+    testSameFloorTarget,
+    testSameFloorTargetExit,
+    runAllTests,
   };
 
   // Expose minimal API for tests

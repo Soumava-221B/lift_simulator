@@ -16,6 +16,7 @@
     currentFloor: 0,
     targetFloor: null,
     moving: false,
+    doorsOpen: false,
     occupants: [],
     capacity: 5,
   };
@@ -26,6 +27,7 @@
    */
   function moveTo(targetFloor) {
     if (liftState.moving) return false;
+    if (liftState.doorsOpen) return false;
     if (targetFloor < 0 || targetFloor > FLOOR_COUNT - 1) return false;
     if (targetFloor === liftState.currentFloor) {
       handleArrival();
@@ -76,6 +78,7 @@
     liftState.currentFloor = 0;
     liftState.targetFloor = null;
     liftState.moving = false;
+    liftState.doorsOpen = false;
     liftState.occupants = [];
   }
 
@@ -105,6 +108,11 @@
 
     liftState.moving = true;
     console.assert(moveTo(1) === false, "moveTo while moving should be rejected");
+
+    liftState.moving = false;
+    liftState.doorsOpen = true;
+    console.assert(moveTo(1) === false, "moveTo while doors open should be rejected");
+    liftState.doorsOpen = false;
 
     // Restore
     Object.assign(liftState, original);
