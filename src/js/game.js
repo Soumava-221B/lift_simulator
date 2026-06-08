@@ -19,6 +19,9 @@
   const hudScore = document.getElementById("hud-score");
   const hudTime = document.getElementById("hud-time");
   const hudCapacity = document.getElementById("hud-capacity");
+  const hudFloor = document.getElementById("hud-floor");
+  const btnUp = document.getElementById("btn-up");
+  const btnDown = document.getElementById("btn-down");
   const finalScoreEl = document.getElementById("final-score");
   const playAgainBtn = document.getElementById("play-again-btn");
 
@@ -56,6 +59,35 @@
       resetUI();
       showStartOverlay();
     });
+
+    // Lift controls
+    btnUp.addEventListener("click", () => {
+      if (gameState.status === "running") {
+        Lift.moveTo(Lift.state.currentFloor + 1);
+      }
+    });
+
+    btnDown.addEventListener("click", () => {
+      if (gameState.status === "running") {
+        Lift.moveTo(Lift.state.currentFloor - 1);
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (gameState.status !== "running") return;
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        Lift.moveTo(Lift.state.currentFloor + 1);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        Lift.moveTo(Lift.state.currentFloor - 1);
+      }
+    });
+
+    // Update HUD whenever lift arrives at a floor
+    document.addEventListener("floorArrived", () => {
+      updateHUD();
+    });
   }
 
   function validateName(name) {
@@ -68,11 +100,14 @@
     gameState.score = 0;
     gameState.timeLeft = 120;
 
+    Lift.reset();
+    setControlsEnabled(true);
+
     hideStartOverlay();
     showGameArea();
     updateHUD();
 
-    // Phase 2+ will wire lift, NPCs, timers here
+    // Phase 3+ will wire NPCs and timers here
     console.log("Game started:", name);
   }
 
@@ -80,6 +115,7 @@
     gameState.status = "ended";
     clearInterval(gameState.spawnTimer);
     clearInterval(gameState.gameTimer);
+    setControlsEnabled(false);
 
     saveScore(gameState.playerName, gameState.score);
     finalScoreEl.textContent = gameState.score;
@@ -100,8 +136,8 @@
     hudPlayer.textContent = gameState.playerName || "—";
     hudScore.textContent = gameState.score;
     hudTime.textContent = formatTime(gameState.timeLeft);
-    // capacity wired in Phase 4
-    hudCapacity.textContent = "0 / 5";
+    hudFloor.textContent = Lift.state.currentFloor;
+    hudCapacity.textContent = `${Lift.state.occupants.length} / ${Lift.state.capacity}`;
   }
 
   function formatTime(seconds) {
@@ -149,6 +185,11 @@
 
   function showEndOverlay() {
     endOverlay.hidden = false;
+  }
+
+  function setControlsEnabled(enabled) {
+    btnUp.disabled = !enabled;
+    btnDown.disabled = !enabled;
   }
 
   function escapeHtml(str) {
